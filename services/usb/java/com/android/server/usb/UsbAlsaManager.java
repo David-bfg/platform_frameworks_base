@@ -256,6 +256,20 @@ public final class UsbAlsaManager {
         }
     }
 
+   /* package */ void setAccessoryAudioState(boolean enabled, int card, int device) {
+       if (DEBUG) {
+            Slog.d(TAG, "setAccessoryAudioState " + enabled + " " + card + " " + device);
+        }
+        if (enabled) {
+            mAccessoryAudioDevice = new UsbAudioDevice(card, device, true, false,
+                    UsbAudioDevice.kAudioDeviceClass_External);
+            notifyDeviceState(mAccessoryAudioDevice, true /*enabled*/);
+        } else if (mAccessoryAudioDevice != null) {
+            notifyDeviceState(mAccessoryAudioDevice, false /*enabled*/);
+            mAccessoryAudioDevice = null;
+        }
+    }
+
    /* package */ void setPeripheralMidiState(boolean enabled, int card, int device) {
         if (!mHasMidiFeature) {
             return;
