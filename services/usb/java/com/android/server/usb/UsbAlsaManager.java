@@ -257,16 +257,22 @@ public final class UsbAlsaManager {
     }
 
    /* package */ void setAccessoryAudioState(boolean enabled, int card, int device) {
-       if (DEBUG) {
+        String AOAHostPlaceholderAddress = "AOAv2.0 - Audio Source USB Host Device";
+        if (DEBUG) {
             Slog.d(TAG, "setAccessoryAudioState " + enabled + " " + card + " " + device);
         }
         if (enabled) {
-            mAccessoryAudioDevice = new UsbAudioDevice(card, device, true, false,
-                    UsbAudioDevice.kAudioDeviceClass_External);
-            notifyDeviceState(mAccessoryAudioDevice, true /*enabled*/);
-        } else if (mAccessoryAudioDevice != null) {
-            notifyDeviceState(mAccessoryAudioDevice, false /*enabled*/);
-            mAccessoryAudioDevice = null;
+            UsbAlsaDevice accessoryAlsaDevice = new UsbAlsaDevice(mAudioService,
+                    card, device, AOAHostPlaceholderAddress, true, false, false, false);
+            if (accessoryAlsaDevice != null) {
+                accessoryAlsaDevice.setDeviceNameAndDescription("Audio Accessory",
+                                                                AOAHostPlaceholderAddress);
+                mAlsaDevices.add(0, accessoryAlsaDevice);
+                selectAlsaDevice(accessoryAlsaDevice);
+            }
+        } else if (0 <= getAlsaDeviceListIndexFor(AOAHostPlaceholderAddress)) {
+            deselectAlsaDevice();
+            removeAlsaDeviceFromList(AOAHostPlaceholderAddress);
         }
     }
 
