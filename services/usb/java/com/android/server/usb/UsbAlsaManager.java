@@ -263,7 +263,7 @@ public final class UsbAlsaManager {
         }
         if (enabled) {
             UsbAlsaDevice accessoryAlsaDevice = new UsbAlsaDevice(mAudioService,
-                    card, device, AOAHostPlaceholderAddress, true, false, false, false);
+                    card, device, AOAHostPlaceholderAddress, true, false, false, false, true);
             if (accessoryAlsaDevice != null) {
                 accessoryAlsaDevice.setDeviceNameAndDescription("Audio Accessory",
                                                                 AOAHostPlaceholderAddress);
