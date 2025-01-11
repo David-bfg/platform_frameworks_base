@@ -41,6 +41,7 @@ public final class UsbAlsaDevice {
 
     private final boolean mIsInputHeadset;
     private final boolean mIsOutputHeadset;
+    private final boolean mIsAccessory;
 
     private boolean mSelected = false;
     private int mOutputState;
@@ -54,6 +55,13 @@ public final class UsbAlsaDevice {
     public UsbAlsaDevice(IAudioService audioService, int card, int device, String deviceAddress,
             boolean hasOutput, boolean hasInput,
             boolean isInputHeadset, boolean isOutputHeadset) {
+        this(audioService, card, device, deviceAddress, hasOutput, hasInput,
+             isInputHeadset, isOutputHeadset, false);
+    }
+
+    public UsbAlsaDevice(IAudioService audioService, int card, int device, String deviceAddress,
+            boolean hasOutput, boolean hasInput,
+            boolean isInputHeadset, boolean isOutputHeadset, boolean isAccessory) {
         mAudioService = audioService;
         mCardNum = card;
         mDeviceNum = device;
@@ -62,6 +70,7 @@ public final class UsbAlsaDevice {
         mHasInput = hasInput;
         mIsInputHeadset = isInputHeadset;
         mIsOutputHeadset = isOutputHeadset;
+        mIsAccessory = isAccessory;
     }
 
     /**
@@ -192,7 +201,9 @@ public final class UsbAlsaDevice {
             if (mHasOutput) {
                 int device = mIsOutputHeadset
                         ? AudioSystem.DEVICE_OUT_USB_HEADSET
-                        : AudioSystem.DEVICE_OUT_USB_DEVICE;
+                        : mIsAccessory
+                            ? AudioSystem.DEVICE_OUT_USB_ACCESSORY
+                            : AudioSystem.DEVICE_OUT_USB_DEVICE;
                 if (DEBUG) {
                     Slog.d(TAG, "pre-call device:0x" + Integer.toHexString(device)
                             + " addr:" + alsaCardDeviceString
@@ -212,7 +223,9 @@ public final class UsbAlsaDevice {
             // Input Device
             if (mHasInput) {
                 int device = mIsInputHeadset ? AudioSystem.DEVICE_IN_USB_HEADSET
-                        : AudioSystem.DEVICE_IN_USB_DEVICE;
+                        : mIsAccessory
+                            ? AudioSystem.DEVICE_IN_USB_ACCESSORY
+                            : AudioSystem.DEVICE_IN_USB_DEVICE;
                 boolean connected = isInputJackConnected();
                 Slog.i(TAG, "INPUT JACK connected: " + connected);
                 int inputState = (enable && connected) ? 1 : 0;
