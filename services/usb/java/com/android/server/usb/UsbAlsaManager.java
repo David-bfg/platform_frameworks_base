@@ -322,6 +322,26 @@ public final class UsbAlsaManager {
 
     }
 
+   /* package */ void setAccessoryAudioState(boolean enabled, int card, int device) {
+        String AOAHostPlaceholderAddress = "AOAv2.0 - Audio Source USB Host Device";
+        if (DEBUG) {
+            Slog.d(TAG, "setAccessoryAudioState " + enabled + " " + card + " " + device);
+        }
+        if (enabled) {
+            UsbAlsaDevice accessoryAlsaDevice = new UsbAlsaDevice(mAudioService,
+                    card, device, AOAHostPlaceholderAddress, true, false, false, false, true);
+            if (accessoryAlsaDevice != null) {
+                accessoryAlsaDevice.setDeviceNameAndDescription("Audio Accessory",
+                                                                AOAHostPlaceholderAddress);
+                mAlsaDevices.add(0, accessoryAlsaDevice);
+                selectAlsaDevice(accessoryAlsaDevice);
+            }
+        } else if (0 <= getAlsaDeviceListIndexFor(AOAHostPlaceholderAddress)) {
+            deselectAlsaDevice();
+            removeAlsaDeviceFromList(AOAHostPlaceholderAddress);
+        }
+    }
+
    /* package */ void setPeripheralMidiState(boolean enabled, int card, int device) {
         if (!mHasMidiFeature) {
             return;
